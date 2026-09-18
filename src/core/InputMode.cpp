@@ -60,24 +60,20 @@ void InputMode::HandleRemap(const InputState &original_inputs, InputState &remap
     }
     remapped_inputs.buttons = 0;
 
-    // Keep track of which buttons have been remapped so that we can prevent macro remapping.
+    // Track physical buttons that have been remapped so they are not left active as their
+    // original input when they are intentionally mapped to a different action or macro chain.
     uint64_t physical_buttons_already_remapped = 0;
     for (size_t i = 0; i < _config->button_remapping_count; i++) {
         const ButtonRemap &remapping = _config->button_remapping[i];
-        // If this physical button was already remapped to something else, ignore this remapping.
-        // This is to prevent creating macro behaviour through remapping.
-        if (get_button(physical_buttons_already_remapped, remapping.physical_button)) {
-            continue;
-        }
 
-        // Either use the value of the physical button, or if the physical button is not pressed,
-        // but the target button has another physical button remapped to it, and is considered to be
-        // pressed, leave it as pressed.
+        // Allow multiple remaps from the same physical button so intentional macro-like behavior
+        // can be created via chained remapping. The physical button remains remapped away from
+        // its original action, but each mapped target can still be activated.
         bool should_be_pressed = get_button(original_inputs.buttons, remapping.physical_button) ||
                                  get_button(remapped_inputs.buttons, remapping.activates);
         set_button(remapped_inputs.buttons, remapping.activates, should_be_pressed);
 
-        // Track which buttons have been remapped.
+        // Track which physical buttons were remapped and remove their raw original state.
         set_button(physical_buttons_already_remapped, remapping.physical_button, true);
     }
 

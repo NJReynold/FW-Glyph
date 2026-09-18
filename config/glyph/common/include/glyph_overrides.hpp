@@ -795,8 +795,8 @@ const Config default_config = {
             .animation = RGB_ANIM_STATIC,
         },
 
-        RgbConfig {
-          .button_colors_count = 20,
+                RgbConfig {
+                    .button_colors_count = 11,
           .button_colors = {
                 {
                 BTN_LF1,
